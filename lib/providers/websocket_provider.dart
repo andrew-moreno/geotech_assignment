@@ -22,7 +22,11 @@ class WebsocketProvider extends ChangeNotifier {
   /// Throws an error if index doesn't exist
   void setSelectedPreset(int index) {
     // TODO: throw error if index doesn't exist
+    if (selectedPreset != null) {
+      log("Preset $selectedPreset unregistered");
+    }
     selectedPreset = index;
+    log("Preset $selectedPreset registered");
     notifyListeners();
   }
 
@@ -33,6 +37,7 @@ class WebsocketProvider extends ChangeNotifier {
   }
 
   /// Closes the connection to the active websocket
+  /// TODO: and pops context if on presets screen
   void closeConnection() {
     _channel.sink.close();
   }

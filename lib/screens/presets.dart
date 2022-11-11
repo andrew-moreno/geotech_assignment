@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:geotech_assignment/providers/websocket_provider.dart';
 import 'package:provider/provider.dart';
@@ -112,8 +110,6 @@ class RemoteControlPresets extends StatelessWidget {
               context,
               listen: false,
             ).setSelectedPreset(index);
-
-            log("Preset $index selected");
           },
         );
       },
