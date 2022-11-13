@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:geotech_assignment/constrains.dart';
 import 'package:geotech_assignment/providers/websocket_provider.dart';
 import 'package:geotech_assignment/screens/connect.dart';
 import 'package:provider/provider.dart';
@@ -16,21 +17,27 @@ class MyApp extends StatelessWidget {
       create: (_) => WebsocketProvider(),
       builder: (context, child) {
         return MaterialApp(
-          title: "GeoTech Assignment",
+          title: "Remote Control Test",
           theme: ThemeData(
-            appBarTheme: const AppBarTheme(
-              color: Colors.blue,
-              shadowColor: Colors.black,
-              elevation: 15,
+            fontFamily: "Poppins",
+            inputDecorationTheme: InputDecorationTheme(
+              labelStyle: const TextStyle(color: Colors.white),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+                borderSide: BorderSide.none,
+              ),
+              filled: true,
+              fillColor: kBackground,
+              contentPadding: const EdgeInsets.symmetric(horizontal: 15),
             ),
-            inputDecorationTheme: const InputDecorationTheme(
-              labelStyle: TextStyle(color: Colors.white),
-              floatingLabelBehavior: FloatingLabelBehavior.always,
-              border: OutlineInputBorder(),
-              contentPadding: EdgeInsets.symmetric(horizontal: 20),
+            elevatedButtonTheme: ElevatedButtonThemeData(
+              style: ElevatedButton.styleFrom(
+                disabledForegroundColor: Colors.transparent,
+                shadowColor: Colors.transparent,
+                backgroundColor: Colors.transparent,
+              ),
             ),
-            scaffoldBackgroundColor: Colors.grey.shade900,
-            textTheme: const TextTheme(),
+            scaffoldBackgroundColor: kBackground,
           ),
           home: Connect(),
         );

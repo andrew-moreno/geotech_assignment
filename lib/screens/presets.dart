@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:geotech_assignment/constrains.dart';
 import 'package:geotech_assignment/providers/websocket_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -26,6 +27,7 @@ class _PresetsState extends State<Presets> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Presets"),
+        backgroundColor: kForeground,
       ),
       body: SafeArea(
         child: Padding(
@@ -37,16 +39,28 @@ class _PresetsState extends State<Presets> {
               Expanded(
                 child: SingleChildScrollView(
                   child: Column(
-                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          Provider.of<WebsocketProvider>(
-                            context,
-                            listen: false,
-                          ).refreshPresets();
-                        },
-                        child: const Text("Refresh"),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 40,
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(kCornerRadius),
+                            color: kAccent,
+                          ),
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Provider.of<WebsocketProvider>(
+                                context,
+                                listen: false,
+                              ).refreshPresets();
+                            },
+                            child: const Text(
+                              "Refresh",
+                              style: TextStyle(color: kBackground),
+                            ),
+                          ),
+                        ),
                       ),
                       const RemoteControlPresets(),
                     ],
@@ -90,26 +104,39 @@ class RemoteControlPresets extends StatelessWidget {
           addAutomaticKeepAlives: false,
           shrinkWrap: true,
           itemCount: presets.length,
-          separatorBuilder: (context, index) => const Divider(),
+          separatorBuilder: (context, index) => const SizedBox(
+            height: 10,
+          ),
           itemBuilder: (context, index) {
             return ListTile(
               title: Text(
                 presets[index],
               ),
               trailing: const Icon(
-                Icons.arrow_right_rounded,
+                Icons.keyboard_arrow_right_rounded,
               ),
               textColor: Colors.white,
               iconColor: Colors.white,
-              selectedColor: Colors.blue,
-              selectedTileColor: Colors.grey.shade800,
+              selectedColor: kAccent,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(kCornerRadius)),
+              selectedTileColor: kForeground,
               selected: index ==
                   Provider.of<WebsocketProvider>(context).selectedPreset,
               onTap: () {
-                Provider.of<WebsocketProvider>(
-                  context,
-                  listen: false,
-                ).setSelectedPreset(index);
+                if (index ==
+                    Provider.of<WebsocketProvider>(context, listen: false)
+                        .selectedPreset) {
+                  Provider.of<WebsocketProvider>(
+                    context,
+                    listen: false,
+                  ).setSelectedPreset(null);
+                } else {
+                  Provider.of<WebsocketProvider>(
+                    context,
+                    listen: false,
+                  ).setSelectedPreset(index);
+                }
               },
             );
           },

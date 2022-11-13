@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:geotech_assignment/constrains.dart';
 import 'package:geotech_assignment/providers/websocket_provider.dart';
 import 'package:geotech_assignment/screens/presets.dart';
 import 'package:provider/provider.dart';
@@ -13,37 +14,68 @@ class Connect extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Flutter Remote Control Test"),
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 30),
-          child: Center(
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    constraints: const BoxConstraints(maxWidth: 350),
-                    child: TextFormField(
-                      controller: _controller,
-                      style: const TextStyle(color: Colors.white),
-                      autofocus: true,
-                      decoration: const InputDecoration(
-                        labelText: "Websocket Address",
-                      ),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "Please enter a Websocket address";
-                        }
-                        return null;
-                      },
-                    ),
+      body: Center(
+        child: Form(
+          key: _formKey,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(kCornerRadius),
+                    topRight: Radius.circular(kCornerRadius),
                   ),
-                  const SizedBox(height: 20),
-                  ElevatedButton(
+                  color: kForeground,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        "Flutter Remote Control Test",
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600),
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      Container(
+                        constraints: const BoxConstraints(maxWidth: 350),
+                        child: TextFormField(
+                          controller: _controller,
+                          style: const TextStyle(color: Colors.white),
+                          autofocus: true,
+                          decoration: const InputDecoration(
+                            labelText: "Websocket Address",
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Please enter a Websocket address";
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 390,
+                height: 40,
+                child: DecoratedBox(
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(kCornerRadius),
+                      bottomRight: Radius.circular(kCornerRadius),
+                    ),
+                    color: kAccent,
+                  ),
+                  child: ElevatedButton(
                     onPressed: () {
                       if (!_formKey.currentState!.validate()) {
                         return;
@@ -63,11 +95,14 @@ class Connect extends StatelessWidget {
                         ),
                       );
                     },
-                    child: const Text("Connect"),
+                    child: const Text(
+                      "Connect",
+                      style: TextStyle(color: kBackground),
+                    ),
                   ),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
         ),
       ),
