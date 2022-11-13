@@ -3,10 +3,7 @@ import 'package:geotech_assignment/providers/websocket_provider.dart';
 import 'package:provider/provider.dart';
 
 class Presets extends StatefulWidget {
-  const Presets({
-    Key? key,
-    required this.websocketAddress,
-  }) : super(key: key);
+  const Presets({Key? key, required this.websocketAddress}) : super(key: key);
 
   static const routeName = "/presets";
   final String websocketAddress;
@@ -83,33 +80,38 @@ class RemoteControlPresets extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView.separated(
-      controller: ScrollController(),
-      physics: const NeverScrollableScrollPhysics(),
-      padding: const EdgeInsets.only(top: 5),
-      addAutomaticKeepAlives: false,
-      shrinkWrap: true,
-      itemCount: 3,
-      separatorBuilder: (context, index) => const Divider(),
-      itemBuilder: (context, index) {
-        return ListTile(
-          title: Text(
-            "RCP_$index",
-          ),
-          trailing: const Icon(
-            Icons.arrow_right_rounded,
-          ),
-          textColor: Colors.white,
-          iconColor: Colors.white,
-          selectedColor: Colors.blue,
-          selectedTileColor: Colors.grey.shade800,
-          selected:
-              index == Provider.of<WebsocketProvider>(context).selectedPreset,
-          onTap: () {
-            Provider.of<WebsocketProvider>(
-              context,
-              listen: false,
-            ).setSelectedPreset(index);
+    return Selector<WebsocketProvider, List<String>>(
+      selector: (_, websocketProvider) => websocketProvider.presets,
+      builder: (context, presets, _) {
+        return ListView.separated(
+          controller: ScrollController(),
+          physics: const NeverScrollableScrollPhysics(),
+          padding: const EdgeInsets.only(top: 5),
+          addAutomaticKeepAlives: false,
+          shrinkWrap: true,
+          itemCount: presets.length,
+          separatorBuilder: (context, index) => const Divider(),
+          itemBuilder: (context, index) {
+            return ListTile(
+              title: Text(
+                presets[index],
+              ),
+              trailing: const Icon(
+                Icons.arrow_right_rounded,
+              ),
+              textColor: Colors.white,
+              iconColor: Colors.white,
+              selectedColor: Colors.blue,
+              selectedTileColor: Colors.grey.shade800,
+              selected: index ==
+                  Provider.of<WebsocketProvider>(context).selectedPreset,
+              onTap: () {
+                Provider.of<WebsocketProvider>(
+                  context,
+                  listen: false,
+                ).setSelectedPreset(index);
+              },
+            );
           },
         );
       },
@@ -119,25 +121,24 @@ class RemoteControlPresets extends StatelessWidget {
 
 class ReceivedPresetEvents extends StatelessWidget {
   /// Used to build the list of received preset events
-  const ReceivedPresetEvents({
-    Key? key,
-  }) : super(key: key);
+  const ReceivedPresetEvents({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<WebsocketProvider>(
-      builder: (context, websocketProvider, _) {
+    return Selector<WebsocketProvider, List<Map<String, String>>>(
+      selector: (_, websocketProvider) => websocketProvider.events,
+      builder: (context, events, _) {
         return ListView.builder(
           controller: ScrollController(),
-          itemCount: (websocketProvider.selectedPreset != null) ? 3 : 0,
+          itemCount: events.length,
           itemBuilder: (context, index) {
             return ListTile(
               title: Text(
-                "RCP_${websocketProvider.selectedPreset}",
+                events[index]["PresetName"]!,
                 style: const TextStyle(color: Colors.white),
               ),
               subtitle: Text(
-                "subtitle",
+                events[index]["Type"]!,
                 style: TextStyle(color: Colors.grey.shade500),
               ),
             );

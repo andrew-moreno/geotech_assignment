@@ -50,6 +50,10 @@ class Connect extends StatelessWidget {
                       }
                       Provider.of<WebsocketProvider>(context, listen: false)
                           .establishConnection(_controller.text);
+                      Provider.of<WebsocketProvider>(context, listen: false)
+                          .getPresetNames();
+                      Provider.of<WebsocketProvider>(context, listen: false)
+                          .getPresetEvents();
                       Navigator.push(
                         context,
                         MaterialPageRoute(
