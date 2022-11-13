@@ -32,10 +32,11 @@ class WebsocketProvider extends ChangeNotifier {
   /// from the presets list and registers/unregisters
   /// presets accordingly
   ///
-  /// If [index] = null, unregister the active preset
-  ///
   /// Throws an error if index doesn't exist
   void setSelectedPreset(int? index) {
+    if (selectedPreset == index) {
+      return;
+    }
     if (selectedPreset != null) {
       _channel.sink.add(
         jsonEncode(
@@ -141,6 +142,8 @@ class WebsocketProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Opens subscription to events emitted by a Remote
+  /// Control Preset
   void getPresetEvents() {
     // For testing without Unreal Engine
     List<Map<String, dynamic>> testingEvents = [
