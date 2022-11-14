@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:geotech_assignment/constrains.dart';
 import 'package:geotech_assignment/providers/websocket_provider.dart';
@@ -15,6 +17,7 @@ class Connect extends StatelessWidget {
   Widget build(BuildContext context) {
     const containerPadding = 20.0;
     const textFieldMaxWidth = 350.0;
+    bool invalidAddress = false;
     return Scaffold(
       body: Center(
         child: Form(
@@ -58,6 +61,9 @@ class Connect extends StatelessWidget {
                           validator: (value) {
                             if (value == null || value.isEmpty) {
                               return "Please enter a Websocket address";
+                            } else if (invalidAddress) {
+                              invalidAddress = false;
+                              return "Please enter a valid Websocket Address";
                             }
                             return null;
                           },
@@ -82,8 +88,16 @@ class Connect extends StatelessWidget {
                         if (!_formKey.currentState!.validate()) {
                           return;
                         }
-                        Provider.of<WebsocketProvider>(context, listen: false)
-                            .establishConnection(_controller.text);
+
+                        try {
+                          Provider.of<WebsocketProvider>(context, listen: false)
+                              .establishConnection(_controller.text);
+                        } catch (e) {
+                          log("Invalid websocket address");
+                          invalidAddress = true;
+                          _formKey.currentState!.validate();
+                          return;
+                        }
                         Provider.of<WebsocketProvider>(context, listen: false)
                             .getPresetNames();
 

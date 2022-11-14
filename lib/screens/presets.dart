@@ -95,6 +95,12 @@ class RemoteControlPresets extends StatelessWidget {
 // Used to build the list of presets from the engine
   const RemoteControlPresets({Key? key}) : super(key: key);
 
+  void popCallback(Function callback) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      callback();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
@@ -103,7 +109,9 @@ class RemoteControlPresets extends StatelessWidget {
           .stream,
       builder: (context, AsyncSnapshot<dynamic> snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
-          log("Connection closed to preset listener.");
+          popCallback(() {
+            Navigator.pop(context);
+          });
         }
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const CircularProgressIndicator(
@@ -220,10 +228,7 @@ class ReceivedPresetEvents extends StatelessWidget {
               .eventsChannel
               .stream,
           builder: (context, AsyncSnapshot<dynamic> snapshot) {
-            if (snapshot.connectionState == ConnectionState.done) {
-              log("Connection closed to event listener.");
-              //Navigator.of(context).pop();
-            }
+            if (snapshot.connectionState == ConnectionState.done) {}
             if (snapshot.hasData) {
               var response = jsonDecode(utf8.decode(snapshot.data!));
               Provider.of<WebsocketProvider>(context, listen: false)

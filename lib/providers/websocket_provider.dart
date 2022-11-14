@@ -80,7 +80,7 @@ class WebsocketProvider extends ChangeNotifier {
     eventsChannel.sink.close();
     presets.clear();
     events.clear();
-    log("Websocket connection closed");
+    log("Connection closed to preset and events listener.");
   }
 
   /// Gets the list of presets in the editor and adds them to the
