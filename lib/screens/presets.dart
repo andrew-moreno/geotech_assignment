@@ -1,13 +1,15 @@
+import 'dart:convert';
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:geotech_assignment/constrains.dart';
 import 'package:geotech_assignment/providers/websocket_provider.dart';
 import 'package:provider/provider.dart';
 
 class Presets extends StatefulWidget {
-  const Presets({Key? key, required this.websocketAddress}) : super(key: key);
+  const Presets({Key? key}) : super(key: key);
 
   static const routeName = "/presets";
-  final String websocketAddress;
 
   @override
   State<Presets> createState() => _PresetsState();
@@ -42,7 +44,7 @@ class _PresetsState extends State<Presets> {
                     children: [
                       SizedBox(
                         width: double.infinity,
-                        height: 40,
+                        height: kButtonHeight,
                         child: DecoratedBox(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(kCornerRadius),
@@ -62,6 +64,7 @@ class _PresetsState extends State<Presets> {
                           ),
                         ),
                       ),
+                      const SizedBox(height: 8),
                       const RemoteControlPresets(),
                     ],
                   ),
@@ -89,58 +92,115 @@ class _PresetsState extends State<Presets> {
 }
 
 class RemoteControlPresets extends StatelessWidget {
-  /// Used to build the list of presets from the engine
+// Used to build the list of presets from the engine
   const RemoteControlPresets({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return Selector<WebsocketProvider, List<String>>(
-      selector: (_, websocketProvider) => websocketProvider.presets,
-      builder: (context, presets, _) {
-        return ListView.separated(
-          controller: ScrollController(),
-          physics: const NeverScrollableScrollPhysics(),
-          padding: const EdgeInsets.only(top: 5),
-          addAutomaticKeepAlives: false,
-          shrinkWrap: true,
-          itemCount: presets.length,
-          separatorBuilder: (context, index) => const SizedBox(
-            height: 10,
-          ),
-          itemBuilder: (context, index) {
-            return ListTile(
-              title: Text(
-                presets[index],
-              ),
-              trailing: const Icon(
-                Icons.keyboard_arrow_right_rounded,
-              ),
-              textColor: Colors.white,
-              iconColor: Colors.white,
-              selectedColor: kAccent,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(kCornerRadius)),
-              selectedTileColor: kForeground,
-              selected: index ==
-                  Provider.of<WebsocketProvider>(context).selectedPreset,
-              onTap: () {
-                if (index ==
-                    Provider.of<WebsocketProvider>(context, listen: false)
-                        .selectedPreset) {
-                  Provider.of<WebsocketProvider>(
-                    context,
-                    listen: false,
-                  ).setSelectedPreset(null);
-                } else {
-                  Provider.of<WebsocketProvider>(
-                    context,
-                    listen: false,
-                  ).setSelectedPreset(index);
-                }
-              },
-            );
-          },
-        );
+    return StreamBuilder(
+      stream: Provider.of<WebsocketProvider>(context, listen: false)
+          .presetsChannel
+          .stream,
+      builder: (context, AsyncSnapshot<dynamic> snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
+          log("Connection closed to preset listener.");
+        }
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const CircularProgressIndicator(
+            color: kAccent,
+          );
+        } else if (snapshot.hasData) {
+          var response = jsonDecode(utf8.decode(snapshot.data!));
+          if (response["ResponseCode"] == 200) {
+            var responsePresets = response["ResponseBody"]!["Presets"];
+            List<String> presets = [];
+            for (var preset in responsePresets) {
+              presets.add(preset["Name"]!);
+            }
+            Provider.of<WebsocketProvider>(context, listen: false).presets =
+                presets;
+          } else {
+            log("Response code of ${response["ResponseCode"]} returned");
+          }
+          return Selector<WebsocketProvider, List<String>>(
+            selector: (_, websocketProvider) => websocketProvider.presets,
+            builder: (context, presets, _) {
+              return (presets.isNotEmpty)
+                  ? ListView.separated(
+                      controller: ScrollController(),
+                      physics: const NeverScrollableScrollPhysics(),
+                      padding: const EdgeInsets.only(top: 5),
+                      addAutomaticKeepAlives: false,
+                      shrinkWrap: true,
+                      itemCount: presets.length,
+                      separatorBuilder: (context, index) => const SizedBox(
+                        height: 10,
+                      ),
+                      itemBuilder: (context, index) {
+                        return PresetListTile(
+                          index: index,
+                          presets: presets,
+                        );
+                      },
+                    )
+                  : const Text(
+                      "No presets set",
+                      style: TextStyle(color: Colors.white),
+                    );
+            },
+          );
+        } else {
+          return const Text(
+            "No data available",
+            style: TextStyle(color: Colors.white),
+          );
+        }
+      },
+    );
+  }
+}
+
+class PresetListTile extends StatelessWidget {
+  /// Used for building individual ListTiles to represent a preset
+  const PresetListTile({
+    Key? key,
+    required this.index,
+    required this.presets,
+  }) : super(key: key);
+
+  final int index;
+  final List<String> presets;
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      title: Text(
+        presets[index],
+      ),
+      trailing: const Icon(
+        Icons.keyboard_arrow_right_rounded,
+      ),
+      textColor: Colors.white,
+      iconColor: Colors.white,
+      selectedColor: kAccent,
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(kCornerRadius)),
+      selectedTileColor: kForeground,
+      selected: index == Provider.of<WebsocketProvider>(context).selectedPreset,
+      onTap: () {
+        if (index ==
+            Provider.of<WebsocketProvider>(context, listen: false)
+                .selectedPreset) {
+          Provider.of<WebsocketProvider>(
+            context,
+            listen: false,
+          ).setSelectedPreset(null);
+        } else {
+          Provider.of<WebsocketProvider>(
+            context,
+            listen: false,
+          ).setSelectedPreset(index);
+        }
       },
     );
   }
@@ -155,20 +215,50 @@ class ReceivedPresetEvents extends StatelessWidget {
     return Selector<WebsocketProvider, List<Map<String, String>>>(
       selector: (_, websocketProvider) => websocketProvider.events,
       builder: (context, events, _) {
-        return ListView.builder(
-          controller: ScrollController(),
-          itemCount: events.length,
-          itemBuilder: (context, index) {
-            return ListTile(
-              title: Text(
-                events[index]["PresetName"]!,
-                style: const TextStyle(color: Colors.white),
-              ),
-              subtitle: Text(
-                events[index]["Type"]!,
-                style: TextStyle(color: Colors.grey.shade500),
-              ),
-            );
+        return StreamBuilder(
+          stream: Provider.of<WebsocketProvider>(context, listen: false)
+              .eventsChannel
+              .stream,
+          builder: (context, AsyncSnapshot<dynamic> snapshot) {
+            if (snapshot.connectionState == ConnectionState.done) {
+              log("Connection closed to event listener.");
+              //Navigator.of(context).pop();
+            }
+            if (snapshot.hasData) {
+              var response = jsonDecode(utf8.decode(snapshot.data!));
+              Provider.of<WebsocketProvider>(context, listen: false)
+                  .events
+                  .add({
+                "Type": response["Type"],
+                "PresetName":
+                    response["PresetName"] ?? response["Preset"]["Name"]
+
+                /// i wasn't able to find any information in the documentation
+                /// regarding PresetLayoutModified so handling this case
+                /// when PresetName is null
+              });
+              return ListView.builder(
+                controller: ScrollController(),
+                itemCount: events.length,
+                itemBuilder: (context, index) {
+                  return ListTile(
+                    title: Text(
+                      events[index]["PresetName"]!,
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                    subtitle: Text(
+                      events[index]["Type"]!,
+                      style: TextStyle(color: Colors.grey.shade500),
+                    ),
+                  );
+                },
+              );
+            } else {
+              return const Text(
+                "No preset events received",
+                style: TextStyle(color: Colors.white),
+              );
+            }
           },
         );
       },

@@ -10,4 +10,5 @@ const kGradient = LinearGradient(
   ],
 );
 
+const kButtonHeight = 40.0;
 const kCornerRadius = 10.0;

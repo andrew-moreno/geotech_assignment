@@ -13,23 +13,25 @@ class Connect extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const containerPadding = 20.0;
+    const textFieldMaxWidth = 350.0;
     return Scaffold(
       body: Center(
         child: Form(
           key: _formKey,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(kCornerRadius),
-                    topRight: Radius.circular(kCornerRadius),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(containerPadding),
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(kCornerRadius),
+                      topRight: Radius.circular(kCornerRadius),
+                    ),
+                    color: kForeground,
                   ),
-                  color: kForeground,
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(20),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -44,7 +46,8 @@ class Connect extends StatelessWidget {
                         height: 20,
                       ),
                       Container(
-                        constraints: const BoxConstraints(maxWidth: 350),
+                        constraints:
+                            const BoxConstraints(maxWidth: textFieldMaxWidth),
                         child: TextFormField(
                           controller: _controller,
                           style: const TextStyle(color: Colors.white),
@@ -63,46 +66,43 @@ class Connect extends StatelessWidget {
                     ],
                   ),
                 ),
-              ),
-              SizedBox(
-                width: 390,
-                height: 40,
-                child: DecoratedBox(
-                  decoration: const BoxDecoration(
-                    borderRadius: BorderRadius.only(
-                      bottomLeft: Radius.circular(kCornerRadius),
-                      bottomRight: Radius.circular(kCornerRadius),
+                SizedBox(
+                  width: textFieldMaxWidth + containerPadding * 2,
+                  height: kButtonHeight,
+                  child: DecoratedBox(
+                    decoration: const BoxDecoration(
+                      borderRadius: BorderRadius.only(
+                        bottomLeft: Radius.circular(kCornerRadius),
+                        bottomRight: Radius.circular(kCornerRadius),
+                      ),
+                      color: kAccent,
                     ),
-                    color: kAccent,
-                  ),
-                  child: ElevatedButton(
-                    onPressed: () {
-                      if (!_formKey.currentState!.validate()) {
-                        return;
-                      }
-                      Provider.of<WebsocketProvider>(context, listen: false)
-                          .establishConnection(_controller.text);
-                      Provider.of<WebsocketProvider>(context, listen: false)
-                          .getPresetNames();
-                      Provider.of<WebsocketProvider>(context, listen: false)
-                          .getPresetEvents();
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: ((context) => Presets(
-                                websocketAddress: _controller.text,
-                              )),
-                        ),
-                      );
-                    },
-                    child: const Text(
-                      "Connect",
-                      style: TextStyle(color: kBackground),
+                    child: ElevatedButton(
+                      onPressed: () {
+                        if (!_formKey.currentState!.validate()) {
+                          return;
+                        }
+                        Provider.of<WebsocketProvider>(context, listen: false)
+                            .establishConnection(_controller.text);
+                        Provider.of<WebsocketProvider>(context, listen: false)
+                            .getPresetNames();
+
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: ((context) => const Presets()),
+                          ),
+                        );
+                      },
+                      child: const Text(
+                        "Connect",
+                        style: TextStyle(color: kBackground),
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
