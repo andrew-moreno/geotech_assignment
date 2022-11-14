@@ -18,7 +18,8 @@ class WebsocketProvider extends ChangeNotifier {
   late WebSocketChannel presetsChannel;
   late WebSocketChannel eventsChannel;
 
-  /// Re populates [presets]
+  /// Re populates [presets] by refreshing [selectedPresets] and
+  /// re sending the presets request
   void refreshPresets() {
     setSelectedPreset(null);
     getPresetNames();
@@ -63,7 +64,8 @@ class WebsocketProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Establishes a websocket connection to the provided address
+  /// Establishes a presets and events websocket connection to the provided
+  /// address
   ///
   /// If this were a full production application, websocket connections would
   /// need to be authenticated to prevent malicious attacks on the application
@@ -73,7 +75,7 @@ class WebsocketProvider extends ChangeNotifier {
     log("Connecting to websocket address $websocketAddress");
   }
 
-  /// Closes the connection to the active websocket
+  /// Closes the connection to the active websockets
   /// and clears [presets] and [events]
   void closeConnection() {
     presetsChannel.sink.close();

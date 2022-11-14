@@ -4,6 +4,9 @@ import 'package:geotech_assignment/providers/websocket_provider.dart';
 import 'package:geotech_assignment/screens/connect.dart';
 import 'package:provider/provider.dart';
 
+/// If this were a full production app, more rigorous and specific testing
+/// would need to be executed on the various methods and widgets
+///   ie. unit testing, widget testing
 void main() {
   runApp(const MyApp());
 }

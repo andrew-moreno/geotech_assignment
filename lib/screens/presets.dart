@@ -42,7 +42,8 @@ class _PresetsState extends State<Presets> {
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
-                      SizedBox(
+                      Container(
+                        constraints: const BoxConstraints(maxWidth: 350),
                         width: double.infinity,
                         height: kButtonHeight,
                         child: DecoratedBox(
@@ -128,6 +129,9 @@ class RemoteControlPresets extends StatelessWidget {
             Provider.of<WebsocketProvider>(context, listen: false).presets =
                 presets;
           } else {
+            /// If this were a production app, adding more specific error
+            /// handling within the UI for each response code would increase
+            /// usability and help the user with debugging
             log("Response code of ${response["ResponseCode"]} returned");
           }
           return Selector<WebsocketProvider, List<String>>(
@@ -238,9 +242,11 @@ class ReceivedPresetEvents extends StatelessWidget {
                 "PresetName":
                     response["PresetName"] ?? response["Preset"]["Name"]
 
-                /// i wasn't able to find any information in the documentation
-                /// regarding PresetLayoutModified so handling this case
-                /// when PresetName is null
+                /// Assumption: i wasn't able to find any information in the UE
+                /// documentation regarding PresetLayoutModified so I'm assuming
+                /// that data is sent in either of the two forms above.
+                /// Other JSON structures for this response
+                /// would need to be handled accordingly if they were present
               });
               return ListView.builder(
                 controller: ScrollController(),

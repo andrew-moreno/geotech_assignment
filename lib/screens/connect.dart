@@ -13,10 +13,11 @@ class Connect extends StatelessWidget {
   final TextEditingController _controller =
       TextEditingController(text: "ws://127.0.0.1:30020");
 
+  static const containerPadding = 20.0;
+  static const textFieldMaxWidth = 350.0;
+
   @override
   Widget build(BuildContext context) {
-    const containerPadding = 20.0;
-    const textFieldMaxWidth = 350.0;
     bool invalidAddress = false;
     return Scaffold(
       body: Center(
