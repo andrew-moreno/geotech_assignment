@@ -7,6 +7,9 @@ import 'package:provider/provider.dart';
 /// If this were a full production app, more rigorous and specific testing
 /// would need to be executed on the various methods and widgets
 ///   ie. unit testing, widget testing
+///
+/// Assuming that this app will run in chrome only. Testing was not conducted
+/// for mobile or desktop apps.
 void main() {
   runApp(const MyApp());
 }
